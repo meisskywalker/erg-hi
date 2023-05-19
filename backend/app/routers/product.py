@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, status
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
+from app import oauth2
+
 from ..handlers import product
 from .. import db, schemas
 
@@ -21,15 +23,28 @@ def show_by_id(id: UUID4, db: Session = Depends(get_db)):
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create(request: schemas.ProductRequest, db: Session = Depends(get_db)):
+def create(
+    request: schemas.ProductRequest,
+    db: Session = Depends(get_db),
+    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
+):
     return product.create_product(request, db)
 
 
 @router.put("/{id}", status_code=status.HTTP_202_ACCEPTED)
-def update(id: UUID4, request: schemas.ProductRequest, db: Session = Depends(get_db)):
+def update(
+    id: UUID4,
+    request: schemas.ProductRequest,
+    db: Session = Depends(get_db),
+    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
+):
     return product.edit_product(id, request, db)
 
 
-@router.delete("/{id}")
-def destroy(id: UUID4, db: Session = Depends(get_db)):
+@router.delete("/{id}", status_code=status.HTTP_202_ACCEPTED)
+def destroy(
+    id: UUID4,
+    db: Session = Depends(get_db),
+    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
+):
     return product.delete_product(id, db)
