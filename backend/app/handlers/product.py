@@ -7,6 +7,7 @@ from app import models, schemas
 product_model = models.Product
 
 
+
 def show_products(db: Session):
     return db.query(product_model).all()
 
@@ -68,3 +69,4 @@ def delete_product(id: UUID4, db: Session):
     db.commit()
 
     return {"detail": "Product was deleted"}
+

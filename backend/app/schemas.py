@@ -15,6 +15,13 @@ class ProductResponse(ProductRequest):
         orm_mode = True
 
 
+class ProductTitleOnly(BaseModel):
+    title: str
+
+    class Config:
+        orm_mode = True
+
+
 class UserRequest(BaseModel):
     username: str
     email: EmailStr
