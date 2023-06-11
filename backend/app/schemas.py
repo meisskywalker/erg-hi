@@ -1,9 +1,9 @@
-from pydantic import UUID4, BaseModel, EmailStr
+from pydantic import UUID4, BaseModel, EmailStr, Field
 
 
 class ProductRequest(BaseModel):
-    title: str
-    description: str
+    title: str = Field(min_length=6)
+    description: str = Field(min_length=12)
     demo_link: str
     video_link: str
     journal_link: str

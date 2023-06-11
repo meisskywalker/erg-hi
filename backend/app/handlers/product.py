@@ -3,6 +3,7 @@ from pydantic import UUID4
 from sqlalchemy.orm import Session
 
 from app import models, schemas
+from app import tf_idf
 
 product_model = models.Product
 
@@ -22,6 +23,17 @@ def show_product(id: UUID4, db: Session):
         )
 
     return product
+
+
+def show_tf_idf(query: str, db: Session):
+    corpus = {a.id: a.title for a in show_products(db)}
+    df = tf_idf.Tf_Idf(corpus)
+    tfidf = df.val_tfidf
+
+    keywords = df.clean_w(query)
+    match_w = list(filter(lambda w: w in list(tfidf.T.columns), keywords))
+    found = tfidf.T.loc[:, match_w]
+    return found.T.sum().to_dict()
 
 
 def create_product(request: schemas.ProductRequest, db: Session):

@@ -14,7 +14,8 @@ class Tf_Idf:
 
 
     def clean_w(self, word):
-        return re.split(" ", re.sub(r"[^\w\s]", "", word.lower()))
+        # return re.split(" ", re.sub(r"[^\w\s]", "", word.lower()))
+        return re.split(" ", re.sub(r"[^a-zA-Z\s]", "", word.lower()))
 
     def clean_text(self):
         return list(
@@ -23,8 +24,6 @@ class Tf_Idf:
 
     def count_match(self):
         match = map(lambda w: {a: w.count(a) for a in w}, self.corpus)
-        # [a[],a[],a[]]
-        # k,v = {"uuid":"list words"}
         return {uuid: a for uuid, a in zip(self.uuids, match)}
 
     def words_in_each(self, key: str):

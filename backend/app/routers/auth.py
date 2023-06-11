@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,7 @@ router = APIRouter(tags=["Auth"])
 @router.post("/login")
 def login(
     request: Annotated[OAuth2PasswordRequestForm, Depends()],
+    response: Response,
     db: Session = Depends(get_db),
 ):
     user = db.query(user_model).filter(user_model.email == request.username).first()
@@ -33,4 +34,5 @@ def login(
         )
 
     access_token = token.create_token(data={"sub": user.email})
+    response.set_cookie(key="token", value=access_token)
     return {"access_token": access_token, "token_type": "bearer"}
