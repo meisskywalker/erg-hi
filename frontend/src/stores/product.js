@@ -7,6 +7,7 @@ export const useProductStore = defineStore('products', {
     products: [],
     product: {},
     tdidf: {},
+    total: 0,
     hasMore: false,
   }),
   actions: {
@@ -28,6 +29,7 @@ export const useProductStore = defineStore('products', {
         if (response.status === 200) {
           if (update) {
             this.products = [...data.data];
+            this.total = data.total;
           } else {
             this.products.push(...data.data);
           }
@@ -98,6 +100,28 @@ export const useProductStore = defineStore('products', {
         console.error('[ERROR]: ' + err);
       }
     },
+    async uploadFileAndUpdate(id, payload, file) {
+      try {
+        const response = await axios.post(
+          '/products/upload-file',
+          { file },
+          {
+            headers: {
+              Authorization: `Bearer ${$cookies.get('token')}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        const data = await response.data;
+        if (response.status === 201) {
+          payload.filename = data.filename;
+          this.deleteFile(payload.oldFile)
+          this.update(id, payload);
+        }
+      } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
     async update(id, payload) {
       try {
         const response = await axios.put(`/products/${id}`, payload, {
@@ -110,6 +134,31 @@ export const useProductStore = defineStore('products', {
             name: 'AdminProductDetail',
             params: { productId: id },
           });
+        }
+      } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
+    async deleteFile(filename) {
+      try {
+        await axios.delete(`/products/delete-file/${filename}`, {
+          headers: {
+            Authorization: `Bearer ${$cookies.get('token')}`,
+          },
+        });
+      } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
+    async delete(id) {
+      try {
+        const response = await axios.delete(`/products/${id}`, {
+          headers: {
+            Authorization: `Bearer ${$cookies.get('token')}`,
+          },
+        });
+        if (response.status === 200) {
+          router.push({ name: 'AdminProductList' });
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);

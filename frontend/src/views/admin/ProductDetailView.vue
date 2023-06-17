@@ -1,6 +1,7 @@
 <script setup>
 import ProductIcon from '../../components/icons/ProductIcon.vue';
 import PencilIcon from '../../components/icons/PencilIcon.vue';
+import TrashIcon from '../../components/icons/TrashIcon.vue';
 import ArrowLeftIcon from '../../components/icons/ArrowLeftIcon.vue';
 import SectionTitle from '../../components/admin/SectionTitle.vue';
 import LinkWithLabel from '../../components/LinkWithLabel.vue';
@@ -15,7 +16,7 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 const product = reactive({});
-const baseUrl = ref(import.meta.env.VITE_API_URL)
+const baseUrl = ref(import.meta.env.VITE_API_URL);
 
 const { productId } = route.params;
 
@@ -26,6 +27,10 @@ onMounted(() => {
 productStore.$subscribe((mutation, state) => {
   Object.assign(product, state.product);
 });
+
+const deleteProduct = () => {
+  productStore.delete(productId);
+};
 
 const back = () => {
   router.go(-1);
@@ -51,6 +56,13 @@ const back = () => {
         <pencil-icon size="24" />
         Edit
       </basic-button>
+      <basic-button
+        class-name="bg-red-700 text-grey-200"
+        @click="deleteProduct"
+      >
+        <trash-icon size="24" />
+        Delete
+      </basic-button>
     </template>
   </section-title>
   <div
@@ -63,7 +75,7 @@ const back = () => {
           product.filename ? product.filename : 'default.jpeg'
         }`"
         :alt="product.title"
-        class="w-96 rounded-md "
+        class="w-96 rounded-md"
       />
       <div v-else class="w-96 h-96 bg-grey-500 rounded-md"></div>
     </div>

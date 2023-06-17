@@ -29,6 +29,7 @@ const data = reactive({
   'journal link': { value: '' },
   'video link': { value: '' },
   description: { value: '' },
+  oldFile: { value: '' },
 });
 
 onMounted(() => {
@@ -45,28 +46,37 @@ productStore.$subscribe((mutation, state) => {
     data['journal link'].value = state.product.journal_link;
     data['video link'].value = state.product.video_link;
     data.description.value = state.product.description;
+    data.oldFile.value = state.product.filename;
   }
 });
 
 const submit = () => {
   if (productId) {
-    productStore.update(productId, {
-      title: data.title.value,
-      author: data.author.value,
-      demo_link: data['demo link'].value,
-      journal_link: data['journal link'].value,
-      video_link: data['video link'].value,
-      description: data.description.value,
-    });
+    productStore.uploadFileAndUpdate(
+      productId,
+      {
+        title: data.title.value,
+        author: data.author.value,
+        demo_link: data['demo link'].value,
+        journal_link: data['journal link'].value,
+        video_link: data['video link'].value,
+        description: data.description.value,
+        oldFile: data.oldFile.value,
+      },
+      file.value
+    );
   } else {
-    productStore.uploadFileAndCreate({
-      title: data.title.value,
-      author: data.author.value,
-      demo_link: data['demo link'].value,
-      journal_link: data['journal link'].value,
-      video_link: data['video link'].value,
-      description: data.description.value,
-    }, file.value);
+    productStore.uploadFileAndCreate(
+      {
+        title: data.title.value,
+        author: data.author.value,
+        demo_link: data['demo link'].value,
+        journal_link: data['journal link'].value,
+        video_link: data['video link'].value,
+        description: data.description.value,
+      },
+      file.value
+    );
   }
 };
 

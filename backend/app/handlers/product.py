@@ -1,3 +1,4 @@
+import os
 from fastapi import HTTPException, status
 from pydantic import UUID4
 from sqlalchemy.orm import Session
@@ -6,6 +7,13 @@ from app import models, schemas
 from app import tf_idf
 
 product_model = models.Product
+
+IMAGEDIR = "./images"
+
+
+def check_file_exists(directory, filename):
+    file_path = os.path.join(directory, filename)
+    return os.path.isfile(file_path)
 
 
 def show_products(db: Session, page: int = 1, limit: int = 10):
@@ -38,7 +46,7 @@ def show_product(id: UUID4, db: Session):
 
 
 def show_tf_idf(query: str, db: Session):
-    corpus = {a.id: a.title for a in show_products(db)['data']}
+    corpus = {a.id: a.title for a in show_products(db)["data"]}
     df = tf_idf.Tf_Idf(corpus)
     tfidf = df.val_tfidf
 
@@ -89,6 +97,10 @@ def delete_product(id: UUID4, db: Session):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Product with id {id} is not found",
         )
+
+    filename = product.first().filename
+    if check_file_exists(IMAGEDIR, filename):
+        os.remove(f"{IMAGEDIR}/{filename}")
 
     product.delete(synchronize_session=False)
     db.commit()

@@ -4,34 +4,44 @@ import Hero from '../components/Hero.vue';
 import BasicInput from '../components/inputs/BasicInput.vue';
 import ProductItem from '../components/ProductItem.vue';
 
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed } from 'vue';
 import { useProductStore } from '../stores/product';
 
 const productStore = useProductStore();
 
 const searchQuery = ref('');
 const pageCount = ref(1);
-const productHasMore = ref(false)
+const productHasMore = ref(false);
+const isSearched = ref(false);
 
 const products = reactive([]);
+const productsBackup = reactive([]);
 const tfIdf = reactive({});
 
 onMounted(() => {
-  productStore.getSome(pageCount.value);
+  productStore.getSome(pageCount.value, true);
 });
 
 productStore.$subscribe((mutation, state) => {
   Object.assign(products, state.products);
   Object.assign(tfIdf, state.tdidf);
 
-  productHasMore.value = state.hasMore
+  productHasMore.value = state.hasMore;
 
-  products.sort((a, b) => {
-    const productA = tfIdf[a.id];
-    const productB = tfIdf[b.id];
+  if (isSearched.value) {
+    productHasMore.value = true;
+    products.sort((a, b) => {
+      const productA = tfIdf[a.id];
+      const productB = tfIdf[b.id];
 
-    return productB - productA;
-  });
+      return productB - productA;
+    });
+
+    Object.assign(productsBackup, products);
+
+    products.length = 0;
+    products.push(...paginateItems.value);
+  }
 });
 
 const update = (payload) => {
@@ -44,14 +54,34 @@ const search = () => {
     products.length = 0;
     productStore.getSome(1, true);
   } else {
+    isSearched.value = true;
+    pageCount.value = 1;
     productStore.getAll();
+    productStore.getTfIdf({ query });
   }
-  productStore.getTfIdf({ query });
 };
+
+const paginateItems = computed(() => {
+  const pageSize = 3;
+  const startIndex = (pageCount.value - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedItems = productsBackup.slice(startIndex, endIndex);
+  return paginatedItems;
+});
+
+const isHasMore = computed(() => {
+  return 3 * pageCount.value < productsBackup.length;
+});
 
 const seeMore = () => {
   pageCount.value = pageCount.value + 1;
-  productStore.getSome(pageCount.value);
+  if (!isSearched.value) {
+    productStore.getSome(pageCount.value);
+  } else {
+    pageCount.value = pageCount.value + 1;
+    products.push(...paginateItems.value);
+    productHasMore.value = isHasMore.value;
+  }
 };
 </script>
 

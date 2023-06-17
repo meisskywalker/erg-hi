@@ -1,6 +1,6 @@
 import os
 import uuid
-from fastapi import APIRouter, Depends, File, status, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, status, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import UUID4
 from sqlalchemy.orm import Session
@@ -16,20 +16,47 @@ get_db = db.get_db
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
+IMAGEDIR = "./images"
+
+def check_file_exists(directory, filename):
+    file_path = os.path.join(directory, filename)
+    return os.path.isfile(file_path)
+
 
 @router.post("/upload-file", status_code=status.HTTP_201_CREATED)
 async def create_upload_file(file: UploadFile = File(...)):
-    IMAGEDIR = "./images"
     os.makedirs(IMAGEDIR, exist_ok=True)
 
     _, ext = os.path.splitext(str(file.filename))
-    file.filename = f"{uuid.uuid4()}{ext}"
+    file.filename = f"image-{uuid.uuid4()}{ext}"
     content = await file.read()
 
     with open(f"{IMAGEDIR}/{file.filename}", "wb") as buffer:
         buffer.write(content)
 
     return {"filename": file.filename}
+
+
+@router.get("/get-file/{filename}")
+async def get_file(filename: str):
+    file_path = f"./images/{filename}"
+    return FileResponse(file_path)
+
+
+@router.delete("/delete-file/{filename}", status_code=status.HTTP_200_OK)
+async def remove_file(
+    filename: str,
+    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
+):
+    if check_file_exists(IMAGEDIR, filename):
+        os.remove(f"{IMAGEDIR}/{filename}")
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"File with name {filename} is not found",
+        )
+
+    return {"detail": "File was deleted"}
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -39,12 +66,6 @@ def create(
     current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
 ):
     return product.create_product(request, db)
-
-
-@router.get("/get-file/{filename}")
-async def get_file(filename: str):
-    file_path = f"./images/{filename}"
-    return FileResponse(file_path)
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
@@ -75,7 +96,7 @@ def update(
     return product.edit_product(id, request, db)
 
 
-@router.delete("/{id}", status_code=status.HTTP_202_ACCEPTED)
+@router.delete("/{id}", status_code=status.HTTP_200_OK)
 def destroy(
     id: UUID4,
     db: Session = Depends(get_db),
