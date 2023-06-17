@@ -8,9 +8,21 @@ from app import tf_idf
 product_model = models.Product
 
 
+def show_products(db: Session, page: int = 1, limit: int = 10):
+    total_count = db.query(product_model).count()
+    has_more = (page * limit) < total_count
 
-def show_products(db: Session):
-    return db.query(product_model).all()
+    if limit <= 0:
+        return {"data": db.query(product_model).all()}
+    else:
+        return {
+            "data": db.query(product_model)
+            .offset((page - 1) * limit)
+            .limit(limit)
+            .all(),
+            "total": total_count,
+            "has_more": has_more,
+        }
 
 
 def show_product(id: UUID4, db: Session):
@@ -26,7 +38,7 @@ def show_product(id: UUID4, db: Session):
 
 
 def show_tf_idf(query: str, db: Session):
-    corpus = {a.id: a.title for a in show_products(db)}
+    corpus = {a.id: a.title for a in show_products(db)['data']}
     df = tf_idf.Tf_Idf(corpus)
     tfidf = df.val_tfidf
 
@@ -40,6 +52,7 @@ def create_product(request: schemas.ProductRequest, db: Session):
     new_product = models.Product(
         title=request.title,
         description=request.description,
+        filename=request.filename,
         video_link=request.video_link,
         demo_link=request.demo_link,
         journal_link=request.journal_link,
@@ -53,7 +66,7 @@ def create_product(request: schemas.ProductRequest, db: Session):
 
 
 def edit_product(id: UUID4, request: schemas.ProductRequest, db: Session):
-    edited_product= request.dict(exclude_unset=True)
+    edited_product = request.dict(exclude_unset=True)
     product = db.query(product_model).filter(product_model.id == id)
 
     if not product.first():
@@ -81,4 +94,3 @@ def delete_product(id: UUID4, db: Session):
     db.commit()
 
     return {"detail": "Product was deleted"}
-

@@ -1,9 +1,11 @@
+from fastapi import File, UploadFile
 from pydantic import UUID4, BaseModel, EmailStr, Field
 
 
 class ProductRequest(BaseModel):
     title: str = Field(min_length=6)
     description: str = Field(min_length=12)
+    filename: str
     demo_link: str
     video_link: str
     journal_link: str

@@ -6,7 +6,7 @@ import SectionTitle from '../../components/admin/SectionTitle.vue';
 import LinkWithLabel from '../../components/LinkWithLabel.vue';
 import BasicButton from '../../components/inputs/BasicButton.vue';
 
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { useProductStore } from '../../stores/product';
 import { useRoute, useRouter } from 'vue-router';
@@ -15,6 +15,7 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 const product = reactive({});
+const baseUrl = ref(import.meta.env.VITE_API_URL)
 
 const { productId } = route.params;
 
@@ -56,7 +57,15 @@ const back = () => {
     class="bg-grey-50 rounded-md my-8 flex flex-col gap-6 py-6 px-6 md:flex-row lg:py-12"
   >
     <div class="basis-1/2 flex justify-center">
-      <div class="w-96 h-96 bg-grey-500 rounded-md"></div>
+      <img
+        v-if="product"
+        :src="`${baseUrl}/products/get-file/${
+          product.filename ? product.filename : 'default.jpeg'
+        }`"
+        :alt="product.title"
+        class="w-96 rounded-md "
+      />
+      <div v-else class="w-96 h-96 bg-grey-500 rounded-md"></div>
     </div>
     <div class="basis-1/2 flex flex-col items-start">
       <h1 class="text-2xl text-ellipsis line-clamp-2 font-medium text-grey-900">

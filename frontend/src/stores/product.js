@@ -7,6 +7,7 @@ export const useProductStore = defineStore('products', {
     products: [],
     product: {},
     tdidf: {},
+    hasMore: false,
   }),
   actions: {
     async getAll() {
@@ -14,7 +15,23 @@ export const useProductStore = defineStore('products', {
         const response = await axios.get('/products');
         const data = await response.data;
         if (response.status === 200) {
-          this.products = [...data];
+          this.products = [...data.data];
+        }
+      } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
+    async getSome(page = 1, update = false) {
+      try {
+        const response = await axios.get(`/products?page=${page}&limit=3`);
+        const data = await response.data;
+        if (response.status === 200) {
+          if (update) {
+            this.products = [...data.data];
+          } else {
+            this.products.push(...data.data);
+          }
+          this.hasMore = data.has_more;
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);
@@ -46,6 +63,27 @@ export const useProductStore = defineStore('products', {
         console.error('[ERROR]: ' + err);
       }
     },
+    async uploadFileAndCreate(payload, file) {
+      try {
+        const response = await axios.post(
+          '/products/upload-file',
+          { file },
+          {
+            headers: {
+              Authorization: `Bearer ${$cookies.get('token')}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+        const data = await response.data;
+        if (response.status === 201) {
+          payload.filename = data.filename;
+          this.create(payload);
+        }
+      } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
     async create(payload) {
       try {
         const response = await axios.post('/products', payload, {
@@ -68,11 +106,17 @@ export const useProductStore = defineStore('products', {
           },
         });
         if (response.status === 202) {
-          router.push({ name: 'AdminProductEdit', params: { productId: id } });
+          router.push({
+            name: 'AdminProductDetail',
+            params: { productId: id },
+          });
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);
       }
+    },
+    resetProduct() {
+      this.products = [];
     },
   },
 });

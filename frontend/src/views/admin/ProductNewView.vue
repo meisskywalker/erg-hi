@@ -6,13 +6,19 @@ import SectionTitle from '../../components/admin/SectionTitle.vue';
 import BasicButton from '../../components/inputs/BasicButton.vue';
 
 import { useRoute, useRouter } from 'vue-router';
-import { reactive } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { useProductStore } from '../../stores/product';
 
 const router = useRouter();
 const route = useRoute();
 const productStore = useProductStore();
+
+const file = ref(null);
+
+const uploadFile = (event) => {
+  file.value = event.target.files[0];
+};
 
 const { productId } = route.params;
 
@@ -23,6 +29,23 @@ const data = reactive({
   'journal link': { value: '' },
   'video link': { value: '' },
   description: { value: '' },
+});
+
+onMounted(() => {
+  if (productId) {
+    productStore.getOneById({ id: productId });
+  }
+});
+
+productStore.$subscribe((mutation, state) => {
+  if (productId) {
+    data.title.value = state.product.title;
+    data.author.value = state.product.author;
+    data['demo link'].value = state.product.demo_link;
+    data['journal link'].value = state.product.journal_link;
+    data['video link'].value = state.product.video_link;
+    data.description.value = state.product.description;
+  }
 });
 
 const submit = () => {
@@ -36,14 +59,14 @@ const submit = () => {
       description: data.description.value,
     });
   } else {
-    productStore.create({
+    productStore.uploadFileAndCreate({
       title: data.title.value,
       author: data.author.value,
       demo_link: data['demo link'].value,
       journal_link: data['journal link'].value,
       video_link: data['video link'].value,
       description: data.description.value,
-    });
+    }, file.value);
   }
 };
 
@@ -76,7 +99,7 @@ const back = () => {
     <template #icon>
       <plus-icon size="28" />
     </template>
-    Add Products
+    {{ productId ? 'Edit' : 'Add' }} Products
     <template #buttons>
       <basic-button class-name="bg-red-500 text-grey-200" @click="back">
         <arrow-left-icon size="24" />
@@ -121,6 +144,7 @@ const back = () => {
       @update="update"
       :value="data.description.value"
     />
+    <input type="file" @change="uploadFile" />
     <div class="flex justify-start items-centeri gap-2">
       <basic-button class-name="bg-brand-500 text-grey-200" @click="submit">
         Submit

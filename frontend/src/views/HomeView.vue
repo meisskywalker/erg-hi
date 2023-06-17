@@ -10,16 +10,21 @@ import { useProductStore } from '../stores/product';
 const productStore = useProductStore();
 
 const searchQuery = ref('');
+const pageCount = ref(1);
+const productHasMore = ref(false)
+
 const products = reactive([]);
 const tfIdf = reactive({});
 
 onMounted(() => {
-  productStore.getAll();
+  productStore.getSome(pageCount.value);
 });
 
 productStore.$subscribe((mutation, state) => {
   Object.assign(products, state.products);
   Object.assign(tfIdf, state.tdidf);
+
+  productHasMore.value = state.hasMore
 
   products.sort((a, b) => {
     const productA = tfIdf[a.id];
@@ -35,15 +40,27 @@ const update = (payload) => {
 
 const search = () => {
   const query = searchQuery.value.trim();
-  productStore.getAll();
+  if (query == '') {
+    products.length = 0;
+    productStore.getSome(1, true);
+  } else {
+    productStore.getAll();
+  }
   productStore.getTfIdf({ query });
+};
+
+const seeMore = () => {
+  pageCount.value = pageCount.value + 1;
+  productStore.getSome(pageCount.value);
 };
 </script>
 
 <template>
   <div>
     <hero image="/img/hero.png">
-      <h1 class="text-grey-100 text-4xl md:text-5xl font-medium leading-[3.5rem] md:leading-[4rem]">
+      <h1
+        class="text-grey-100 text-4xl md:text-5xl font-medium leading-[3.5rem] md:leading-[4rem]"
+      >
         Lorem ipsum dolor sit amet consectetur
         <span class="text-brand-accent-300">adipiscing elit.</span>
         Pellentesque ac lorem tellus.
@@ -57,31 +74,57 @@ const search = () => {
       <div id="products" class="container mx-auto w-full">
         <div class="w-full justify-center items-center flex flex-col p-8">
           <h1 class="text-3xl text-brand-900 font-semibold">Our Products</h1>
-          <span class="text-brand-800">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut
-            suscipit dolor.</span>
+          <span class="text-brand-800"
+            >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut
+            suscipit dolor.</span
+          >
         </div>
-        <div id="products" class="flex flex-col gap-8 justify-center items-center px-4 md:p-0">
+        <div
+          id="products"
+          class="flex flex-col gap-8 justify-center items-center pb-4 px-4 md:px-0"
+        >
           <div class="w-full flex justify-end items-center gap-2">
-            <form @submit.prevent="search" class="flex justify-end items-center gap-2">
-              <basic-input className="w-52" :value="searchQuery" @update="update" />
+            <form
+              @submit.prevent="search"
+              class="flex justify-end items-center gap-2"
+            >
+              <basic-input
+                className="w-52"
+                :value="searchQuery"
+                @update="update"
+              />
               <button type="submit" class="bg-brand-400 p-2 rounded-md">
                 <search-icon color="text-grey-200" size="20" />
               </button>
             </form>
           </div>
-          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <product-item v-for="product in products" :key="product.id" :product-id="product.id">
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 w-full">
+            <product-item
+              v-for="product in products"
+              :key="product.id"
+              :product-id="product.id"
+              :image="product.filename"
+            >
               {{ product.title }}
             </product-item>
           </div>
-          <button class="bg-brand-200 rounded-md py-1 px-3 text-lg text-grey-900">
+          <button
+            @click="seeMore"
+            v-if="productHasMore"
+            class="bg-brand-200 rounded-md py-1 px-3 text-lg text-grey-900"
+          >
             See More
           </button>
         </div>
       </div>
-      <div id="about" class="w-full justify-center items-center flex flex-col p-8 bg-grey-50 gap-8">
+      <div
+        id="about"
+        class="w-full justify-center items-center flex flex-col p-8 bg-grey-50 gap-8"
+      >
         <h1 class="text-3xl text-brand-900 font-semibold">About Us</h1>
-        <div class="flex flex-col gap-4 items-center md:items-stretch md:gap-0 md:flex-row justify-between">
+        <div
+          class="flex flex-col gap-4 items-center md:items-stretch md:gap-0 md:flex-row justify-between"
+        >
           <div class="basis-1 md:basis-1/2 flex justify-center">
             <img src="/img/about.png" alt="about" width="80%" />
           </div>
