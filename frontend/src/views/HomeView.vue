@@ -78,7 +78,6 @@ const seeMore = () => {
   if (!isSearched.value) {
     productStore.getSome(pageCount.value);
   } else {
-    pageCount.value = pageCount.value + 1;
     products.push(...paginateItems.value);
     productHasMore.value = isHasMore.value;
   }

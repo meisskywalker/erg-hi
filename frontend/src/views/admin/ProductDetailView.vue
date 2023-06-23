@@ -10,11 +10,10 @@ import BasicButton from '../../components/inputs/BasicButton.vue';
 import { onMounted, reactive, ref } from 'vue';
 
 import { useProductStore } from '../../stores/product';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 const productStore = useProductStore();
 const route = useRoute();
-const router = useRouter();
 const product = reactive({});
 const baseUrl = ref(import.meta.env.VITE_API_URL);
 
@@ -29,11 +28,9 @@ productStore.$subscribe((mutation, state) => {
 });
 
 const deleteProduct = () => {
-  productStore.delete(productId);
-};
-
-const back = () => {
-  router.go(-1);
+  if (confirm('Are you sure?')) {
+    productStore.delete(productId);
+  }
 };
 </script>
 
@@ -44,7 +41,11 @@ const back = () => {
     </template>
     Detail Products
     <template #buttons>
-      <basic-button class-name="bg-red-500 text-grey-200" @click="back">
+      <basic-button
+        class-name="bg-red-500 text-grey-200"
+        is-link
+        link="/admin/products"
+      >
         <arrow-left-icon size="24" />
         Back
       </basic-button>
@@ -75,7 +76,7 @@ const back = () => {
           product.filename ? product.filename : 'default.jpeg'
         }`"
         :alt="product.title"
-        class="w-96 rounded-md"
+        class="w-96 h-96 object-cover rounded-md"
       />
       <div v-else class="w-96 h-96 bg-grey-500 rounded-md"></div>
     </div>

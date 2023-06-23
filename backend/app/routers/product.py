@@ -1,7 +1,5 @@
 import os
-import uuid
 from fastapi import APIRouter, Depends, File, HTTPException, status, UploadFile
-from fastapi.responses import FileResponse
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
@@ -18,29 +16,22 @@ router = APIRouter(prefix="/products", tags=["Products"])
 
 IMAGEDIR = "./images"
 
+
 def check_file_exists(directory, filename):
     file_path = os.path.join(directory, filename)
     return os.path.isfile(file_path)
 
 
 @router.post("/upload-file", status_code=status.HTTP_201_CREATED)
-async def create_upload_file(file: UploadFile = File(...)):
-    os.makedirs(IMAGEDIR, exist_ok=True)
-
-    _, ext = os.path.splitext(str(file.filename))
-    file.filename = f"image-{uuid.uuid4()}{ext}"
-    content = await file.read()
-
-    with open(f"{IMAGEDIR}/{file.filename}", "wb") as buffer:
-        buffer.write(content)
-
-    return {"filename": file.filename}
-
+async def upload_file(
+    file: UploadFile = File(...),
+    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
+):
+    return await product.upload_product_image(file)
 
 @router.get("/get-file/{filename}")
 async def get_file(filename: str):
-    file_path = f"./images/{filename}"
-    return FileResponse(file_path)
+    return product.product_get_image(filename)
 
 
 @router.delete("/delete-file/{filename}", status_code=status.HTTP_200_OK)
@@ -48,15 +39,7 @@ async def remove_file(
     filename: str,
     current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
 ):
-    if check_file_exists(IMAGEDIR, filename):
-        os.remove(f"{IMAGEDIR}/{filename}")
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"File with name {filename} is not found",
-        )
-
-    return {"detail": "File was deleted"}
+    return product.product_delete_image(filename)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

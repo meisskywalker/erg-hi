@@ -5,6 +5,7 @@ import router from '../router';
 export const useUserStore = defineStore('users', {
   state: () => ({
     user: {},
+    error: ""
   }),
   actions: {
     async login(payload) {
@@ -14,10 +15,14 @@ export const useUserStore = defineStore('users', {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
         });
-        router.push("/admin/products")
+        router.push('/admin/products');
       } catch (err) {
-        console.log(err)
+        this.error = err.response.data.detail
       }
+    },
+    logout() {
+      $cookies.remove('token');
+      router.push('/');
     },
   },
 });

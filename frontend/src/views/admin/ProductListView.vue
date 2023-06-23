@@ -101,6 +101,7 @@ const previous = () => {
   if (!isSearched.value) {
     productStore.getSome(pageCount.value, true);
   } else {
+    productHasMore.value = isHasMore.value;
     products.push(...paginateItems.value);
   }
 };
