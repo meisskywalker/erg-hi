@@ -97,6 +97,7 @@ export const useProductStore = defineStore('products', {
           router.push({ name: 'AdminProductList' });
         }
       } catch (err) {
+        this.deleteFile(payload.filename);
         console.error('[ERROR]: ' + err);
       }
     },
@@ -115,7 +116,7 @@ export const useProductStore = defineStore('products', {
         const data = await response.data;
         if (response.status === 201) {
           payload.filename = data.filename;
-          this.deleteFile(payload.oldFile)
+          this.deleteFile(payload.oldFile);
           this.update(id, payload);
         }
       } catch (err) {
@@ -136,6 +137,9 @@ export const useProductStore = defineStore('products', {
           });
         }
       } catch (err) {
+        if (payload.filename) {
+          this.deleteFile(payload.filename);
+        }
         console.error('[ERROR]: ' + err);
       }
     },

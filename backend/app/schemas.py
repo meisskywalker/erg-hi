@@ -1,4 +1,4 @@
-from fastapi import File, UploadFile
+from typing import Optional
 from pydantic import UUID4, BaseModel, EmailStr, Field
 
 
@@ -46,3 +46,19 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
+
+
+class HeroRequest(BaseModel):
+    filename: str
+    main_text: str
+    alt_text: Optional[str]
+
+
+class AboutUsRequest(BaseModel):
+    filename: str
+    text: str
+    description: str
+
+class ContactUsRequest(BaseModel):
+    filename: str
+    link: str

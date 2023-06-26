@@ -152,7 +152,7 @@ const previous = () => {
           :key="product.id"
         >
           <th scope="row" class="px-6 py-4 font-medium text-gray-900 w-60">
-            {{ truncate(product.title, 20) }}
+            {{ truncate(product.title, 40) }}
           </th>
           <td class="px-6 py-4">{{ product.author }}</td>
           <td class="px-6 py-4">

@@ -23,3 +23,29 @@ class User(Base):
     username = Column(String)
     email = Column(String)
     password = Column(String)
+
+
+class Hero(Base):
+    __tablename__ = "heros"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    filename = Column(String)
+    main_text = Column(String)
+    alt_text = Column(String, nullable=True)
+
+
+class AboutUs(Base):
+    __tablename__ = "about_us"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    filename = Column(String)
+    text = Column(String)
+    description = Column(String)
+
+
+class ContactUs(Base):
+    __tablename__ = "contact_us"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    filename = Column(String)
+    link = Column(String)
