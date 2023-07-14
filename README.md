@@ -59,12 +59,46 @@ Lalu sesuaikan variabel `DB_URI` dengan credensial untuk konek ke PostgreSQL. Co
 DB_URI=postgresql://admin:admin@localhost:5432/erghi
 ```
 
-Juga sesuai akan variabel `SECRET_KEY` dengan nilai random, semakin sulit semakin bagus karena variabel ini berguna untuk pembuatan jwt token nanti.
+Juga sesuai akan variabel `SECRET_KEY` dengan nilai random, semakin sulit semakin bagus karena variabel ini berguna untuk pembuatan jwt token.
 
 #### Langkah 4
 
-Jalankan aplikasi backend
+Jalankan aplikasi backend.
 
 ```bash
 $ uvicorn app.main:app --reload
 ```
+
+### Frontend
+
+Dependencies yang diperlukan untuk menjalankan aplikasi frontend adalah `NodeJs`.
+
+Pertama, masuk ke folder `frontend`.
+
+```bash
+$ cd frontend 
+```
+
+#### Langkah 1
+
+Install semua module.
+
+```bash
+$ npm i
+# or
+$ yarn
+```
+
+#### Langkah 2
+
+Buat file `.env`. Jalankan perintah berikut untuk meng-copy file `.env.example`:
+
+```bash
+$ cp .env.example .env
+```
+
+Lalu sesuaikan variabel `VITE_API_URL` dengan host dan port pada aplikasi backend. Contoh `http://localhost:8000`
+
+#### Langkah 3
+
+Jalankan aplikasi secara developement dengan `yarn dev`, atau build aplikasi dengan `yarn build`.
