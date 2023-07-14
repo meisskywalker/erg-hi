@@ -49,7 +49,6 @@ class TokenData(BaseModel):
 
 
 class HeroRequest(BaseModel):
-    filename: str
     main_text: str
     alt_text: Optional[str]
 
@@ -60,5 +59,6 @@ class AboutUsRequest(BaseModel):
     description: str
 
 class ContactUsRequest(BaseModel):
+    name: str
     filename: str
     link: str

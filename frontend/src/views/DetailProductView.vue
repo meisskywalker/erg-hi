@@ -28,7 +28,7 @@ productStore.$subscribe((mutation, state) => {
   >
     <div class="md:basis-1/2 flex justify-center">
       <img
-        :src="`${baseUrl}/products/get-file/${
+        :src="`${baseUrl}/images/${
           product.filename ? product.filename : 'default.jpeg'
         }`"
         :alt="product.title"
@@ -44,20 +44,27 @@ productStore.$subscribe((mutation, state) => {
       <h1 class="text-2xl text-ellipsis line-clamp-2 font-medium text-grey-900">
         {{ product.title }}
       </h1>
-      <div class="mt-5 flex flex-col gap-2">
-        <div class="text-grey-800">
-          <span>Author</span>:
-          <span class="font-medium">{{ product.author }}</span>
-        </div>
-        <link-with-label label="Demo" :link="product.demo_link">
-          visit here
-        </link-with-label>
-        <link-with-label label="Journal" :link="product.journal_link">
-          visit here
-        </link-with-label>
-        <link-with-label label="Video" :link="product.video_link">
-          visit here
-        </link-with-label>
+      <div class="mt-5">
+        <table>
+          <tr class="text-grey-800">
+            <td>Author</td>
+            <td class="font-medium">: {{ product.author }}</td>
+          </tr>
+          <tr class="text-grey-800">
+            <td>Demo</td>
+            <td>: <a :href="product.demo_link" target="_blank" class="text-blue-700">visit here</a></td>
+          </tr>
+          <tr class="text-grey-800">
+            <td>Journal</td>
+            <td>: <a :href="product.journal_link" target="_blank" class="text-blue-700">visit here</a></td>
+          </tr>
+          <tr class="text-grey-800">
+            <td>Video</td>
+            <td>: <a :href="product.video_link" target="_blank" class="text-blue-700">visit here</a></td>
+          </tr>
+        </table>
+      </div>
+      <div class="flex flex-col gap-2">
         <div class="text-grey-800">
           <span>Description</span>:
           <p class="text-grey-900">

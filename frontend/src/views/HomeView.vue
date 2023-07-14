@@ -6,9 +6,16 @@ import ProductItem from '../components/ProductItem.vue';
 
 import { ref, onMounted, reactive, computed } from 'vue';
 import { useProductStore } from '../stores/product';
+import { useHeroStore } from '../stores/hero';
+import { useAboutUsStore } from '../stores/aboutUs';
+import { useContactUsStore } from '../stores/contactUs';
 
 const productStore = useProductStore();
+const heroStore = useHeroStore();
+const aboutUsStore = useAboutUsStore();
+const contactUsStore = useContactUsStore();
 
+const baseUrl = ref(import.meta.env.VITE_API_URL);
 const searchQuery = ref('');
 const pageCount = ref(1);
 const productHasMore = ref(false);
@@ -17,9 +24,27 @@ const isSearched = ref(false);
 const products = reactive([]);
 const productsBackup = reactive([]);
 const tfIdf = reactive({});
+const hero = reactive({});
+const aboutUs = reactive({});
+const contactUses = reactive([]);
 
 onMounted(() => {
+  aboutUsStore.getAll();
+  heroStore.getAll();
   productStore.getSome(pageCount.value, true);
+  contactUsStore.getAll();
+});
+
+contactUsStore.$subscribe((mutation, state) => {
+  Object.assign(contactUses, state.contactUs);
+});
+
+heroStore.$subscribe((mutation, state) => {
+  Object.assign(hero, state.hero);
+});
+
+aboutUsStore.$subscribe((mutation, state) => {
+  Object.assign(aboutUs, state.aboutUs);
 });
 
 productStore.$subscribe((mutation, state) => {
@@ -29,7 +54,7 @@ productStore.$subscribe((mutation, state) => {
   productHasMore.value = state.hasMore;
 
   if (isSearched.value) {
-    productHasMore.value = true;
+    productHasMore.value = products.length === 3 ? false : true;
     products.sort((a, b) => {
       const productA = tfIdf[a.id];
       const productB = tfIdf[b.id];
@@ -53,6 +78,7 @@ const search = () => {
   if (query == '') {
     products.length = 0;
     productStore.getSome(1, true);
+    productStore.getTfIdf({ query });
   } else {
     isSearched.value = true;
     pageCount.value = 1;
@@ -86,27 +112,27 @@ const seeMore = () => {
 
 <template>
   <div>
-    <hero image="/img/hero.png">
+    <hero
+      :image="`${baseUrl}/images/${
+        hero.filename ? hero.filename : 'default.jpeg'
+      }`"
+    >
       <h1
         class="text-grey-100 text-4xl md:text-5xl font-medium leading-[3.5rem] md:leading-[4rem]"
       >
-        Lorem ipsum dolor sit amet consectetur
-        <span class="text-brand-accent-300">adipiscing elit.</span>
-        Pellentesque ac lorem tellus.
+        {{ hero.main_text }}
       </h1>
       <span class="text-grey-50 font-light">
-        Lorem ipsum dolor sit amet consectetur adipiscing elit. Pellentesque ac
-        lorem tellus.
+        {{ hero.alt_text }}
       </span>
     </hero>
     <main class="mx-auto flex flex-col gap-8">
       <div id="products" class="container mx-auto w-full">
         <div class="w-full justify-center items-center flex flex-col p-8">
           <h1 class="text-3xl text-brand-900 font-semibold">Our Products</h1>
-          <span class="text-brand-800"
-            >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut
-            suscipit dolor.</span
-          >
+          <span class="text-brand-800">
+            We only make good product with international standards. You can find it below.
+          </span>
         </div>
         <div
           id="products"
@@ -152,27 +178,41 @@ const seeMore = () => {
       >
         <h1 class="text-3xl text-brand-900 font-semibold">About Us</h1>
         <div
-          class="flex flex-col gap-4 items-center md:items-stretch md:gap-0 md:flex-row justify-between"
+          class="flex flex-col gap-4 items-center md:items-stretch md:gap-0 md:flex-row justify-between w-full"
         >
-          <div class="basis-1 md:basis-1/2 flex justify-center">
-            <img src="/img/about.png" alt="about" width="80%" />
+          <div class="basis-1 md:basis-1/2 flex justify-center w-full">
+            <img
+              :src="`${baseUrl}/images/${
+                aboutUs.filename ? aboutUs.filename : 'default.jpeg'
+              }`"
+              alt="about"
+              class="w-96 h-64 object-cover rounded-md"
+            />
           </div>
           <div class="basis-1 w-[80%] md:w-full md:basis-1/2 flex flex-col">
             <div class="flex gap-4 flex-col md:grow">
               <h2 class="text-brand-800 text-2xl font-medium">
-                Lorem ipsum dolor sit amet.
+                {{ aboutUs.text }}
               </h2>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Suspendisse in magna venenatis, mollis turpis eget, tempor
-                nulla. Etiam sit amet nisl nec augue imperdiet egestas.
-                Curabitur quis vestibulum lectus.
+                {{ aboutUs.description }}
               </p>
             </div>
             <div class="flex gap-2 items-center">
               <span>Contact us by: </span>
-              <img src="/img/ig-logo.png" alt="ig" width="35" />
-              <img src="/img/wa-logo.png" alt="ig" width="35" />
+              <a
+                v-for="contactUs in contactUses"
+                target="_blank"
+                :href="contactUs.link"
+                :key="contactUs.id"
+              >
+                <img
+                  :src="`${baseUrl}/images/${
+                    contactUs.filename ? contactUs.filename : 'default.jpeg'
+                  }`"
+                  class="w-8 h-8 object-cover rounded-md"
+                />
+              </a>
             </div>
           </div>
         </div>

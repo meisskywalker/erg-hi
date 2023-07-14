@@ -2,38 +2,18 @@ import axios from 'axios';
 import { defineStore } from 'pinia';
 import router from '../router';
 
-export const useProductStore = defineStore('products', {
+export const useContactUsStore = defineStore('contact-us', {
   state: () => ({
-    products: [],
-    product: {},
-    tdidf: {},
-    total: 0,
-    hasMore: false,
+    contactUs: [],
+    contact: {},
   }),
   actions: {
     async getAll() {
       try {
-        const response = await axios.get('/products');
+        const response = await axios.get('/contact-us');
         const data = await response.data;
         if (response.status === 200) {
-          this.products = [...data.data];
-        }
-      } catch (err) {
-        console.error('[ERROR]: ' + err);
-      }
-    },
-    async getSome(page = 1, update = false) {
-      try {
-        const response = await axios.get(`/products?page=${page}&limit=3`);
-        const data = await response.data;
-        if (response.status === 200) {
-          if (update) {
-            this.products = [...data.data];
-            this.total = data.total;
-          } else {
-            this.products.push(...data.data);
-          }
-          this.hasMore = data.has_more;
+          this.contactUs = [...data];
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);
@@ -41,25 +21,10 @@ export const useProductStore = defineStore('products', {
     },
     async getOneById(payload) {
       try {
-        const response = await axios.get(`/products/${payload.id}`);
+        const response = await axios.get(`/contact-us/${payload.id}`);
         const data = await response.data;
         if (response.status === 200) {
-          this.product = data;
-        }
-      } catch (err) {
-        console.error('[ERROR]: ' + err);
-      }
-    },
-    async getTfIdf(payload) {
-      try {
-        const response = await axios.get('/products/tfidf', {
-          params: {
-            query: payload.query,
-          },
-        });
-        const data = await response.data;
-        if (response.status === 200) {
-          this.tdidf = { ...data };
+          this.contact = data;
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);
@@ -88,16 +53,18 @@ export const useProductStore = defineStore('products', {
     },
     async create(payload) {
       try {
-        const response = await axios.post('/products', payload, {
+        const response = await axios.post(`/contact-us`, payload, {
           headers: {
             Authorization: `Bearer ${$cookies.get('token')}`,
           },
         });
         if (response.status === 201) {
-          router.push({ name: 'AdminProductList' });
+          router.push({ name: 'AdminContactUsList' });
         }
       } catch (err) {
-        this.deleteFile(payload.filename);
+        if (payload.filename) {
+          this.deleteFile(payload.filename);
+        }
         console.error('[ERROR]: ' + err);
       }
     },
@@ -116,8 +83,8 @@ export const useProductStore = defineStore('products', {
         const data = await response.data;
         if (response.status === 201) {
           payload.filename = data.filename;
-          this.deleteFile(payload.oldFile);
           this.update(id, payload);
+          this.deleteFile(payload.oldFile);
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);
@@ -125,21 +92,32 @@ export const useProductStore = defineStore('products', {
     },
     async update(id, payload) {
       try {
-        const response = await axios.put(`/products/${id}`, payload, {
+        const response = await axios.put(`/contact-us/${id}`, payload, {
           headers: {
             Authorization: `Bearer ${$cookies.get('token')}`,
           },
         });
         if (response.status === 202) {
-          router.push({
-            name: 'AdminProductDetail',
-            params: { productId: id },
-          });
+          router.push({ name: 'AdminContactUsList' });
         }
       } catch (err) {
         if (payload.filename) {
           this.deleteFile(payload.filename);
         }
+        console.error('[ERROR]: ' + err);
+      }
+    },
+    async delete(id) {
+      try {
+        const response = await axios.delete(`/contact-us/${id}`, {
+          headers: {
+            Authorization: `Bearer ${$cookies.get('token')}`,
+          },
+        });
+        if (response.status === 200) {
+          window.location.reload();
+        }
+      } catch (err) {
         console.error('[ERROR]: ' + err);
       }
     },
@@ -153,23 +131,6 @@ export const useProductStore = defineStore('products', {
       } catch (err) {
         console.error('[ERROR]: ' + err);
       }
-    },
-    async delete(id) {
-      try {
-        const response = await axios.delete(`/products/${id}`, {
-          headers: {
-            Authorization: `Bearer ${$cookies.get('token')}`,
-          },
-        });
-        if (response.status === 200) {
-          router.push({ name: 'AdminProductList' });
-        }
-      } catch (err) {
-        console.error('[ERROR]: ' + err);
-      }
-    },
-    resetProduct() {
-      this.products = [];
     },
   },
 });

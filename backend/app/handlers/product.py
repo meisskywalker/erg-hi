@@ -1,7 +1,5 @@
 import os
-import uuid
 from fastapi import HTTPException, status
-from fastapi.responses import FileResponse
 from pydantic import UUID4
 from sqlalchemy.orm import Session
 
@@ -12,41 +10,9 @@ product_model = models.Product
 
 IMAGEDIR = "./images"
 
-
 def check_file_exists(directory, filename):
     file_path = os.path.join(directory, filename)
     return os.path.isfile(file_path)
-
-
-async def upload_product_image(file):
-    os.makedirs(IMAGEDIR, exist_ok=True)
-
-    _, ext = os.path.splitext(str(file.filename))
-    file.filename = f"image-{uuid.uuid4()}{ext}"
-    content = await file.read()
-
-    with open(f"{IMAGEDIR}/{file.filename}", "wb") as buffer:
-        buffer.write(content)
-
-    return {"filename": file.filename}
-
-
-def product_get_image(filename: str):
-    file_path = f"./images/{filename}"
-    return FileResponse(file_path)
-
-
-def product_delete_image(filename):
-    if check_file_exists(IMAGEDIR, filename):
-        os.remove(f"{IMAGEDIR}/{filename}")
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"File with name {filename} is not found",
-        )
-
-    return {"detail": "File was deleted"}
-
 
 def show_products(db: Session, page: int = 1, limit: int = 10):
     total_count = db.query(product_model).count()

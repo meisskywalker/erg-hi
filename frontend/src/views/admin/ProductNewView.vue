@@ -36,6 +36,7 @@ const data = reactive({
 
 onMounted(() => {
   if (productId) {
+    isSubmited.value = true;
     productStore.getOneById({ id: productId });
   }
 });
@@ -186,84 +187,32 @@ const back = () => {
     </template>
   </section-title>
   <div class="bg-grey-50 rounded-md my-8 flex flex-col p-4 gap-2">
-    <input-with-label
-      label="Title"
-      type="text"
-      :show-error-message="isSubmited"
-      :error-rules="data.title.rules"
-      @update="update"
-      @errorChecker="errorChecker"
-      :value="data.title.value"
-    />
-    <input-with-label
-      label="Author"
-      type="text"
-      :show-error-message="isSubmited"
-      :error-rules="data.author.rules"
-      @update="update"
-      @errorChecker="errorChecker"
-      :value="data.author.value"
-    />
-    <input-with-label
-      label="Demo Link"
-      type="text"
-      :show-error-message="isSubmited"
-      :error-rules="data['demo link'].rules"
-      @update="update"
-      @errorChecker="errorChecker"
-      :value="data['demo link'].value"
-    />
-    <input-with-label
-      label="Journal Link"
-      type="text"
-      :show-error-message="isSubmited"
-      :error-rules="data['journal link'].rules"
-      @update="update"
-      @errorChecker="errorChecker"
-      :value="data['journal link'].value"
-    />
-    <input-with-label
-      label="Video Link"
-      type="text"
-      :show-error-message="isSubmited"
-      :error-rules="data['video link'].rules"
-      @update="update"
-      @errorChecker="errorChecker"
-      :value="data['video link'].value"
-    />
-    <input-with-label
-      label="Description"
-      type="textarea"
-      :show-error-message="isSubmited"
-      :error-rules="data.description.rules"
-      @update="update"
-      @errorChecker="errorChecker"
-      :value="data.description.value"
-    />
+    <input-with-label label="Title" type="text" :show-error-message="isSubmited" :error-rules="data.title.rules"
+      @update="update" @errorChecker="errorChecker" :value="data.title.value" />
+    <input-with-label label="Author" type="text" :show-error-message="isSubmited" :error-rules="data.author.rules"
+      @update="update" @errorChecker="errorChecker" :value="data.author.value" />
+    <input-with-label label="Demo Link" type="text" :show-error-message="isSubmited"
+      :error-rules="data['demo link'].rules" @update="update" @errorChecker="errorChecker"
+      :value="data['demo link'].value" />
+    <input-with-label label="Journal Link" type="text" :show-error-message="isSubmited"
+      :error-rules="data['journal link'].rules" @update="update" @errorChecker="errorChecker"
+      :value="data['journal link'].value" />
+    <input-with-label label="Video Link" type="text" :show-error-message="isSubmited"
+      :error-rules="data['video link'].rules" @update="update" @errorChecker="errorChecker"
+      :value="data['video link'].value" />
+    <input-with-label label="Description" type="textarea" :show-error-message="isSubmited"
+      :error-rules="data.description.rules" @update="update" @errorChecker="errorChecker"
+      :value="data.description.value" />
     <div class="flex flex-col">
       <label for="file" class="font-medium text-base">Image</label>
-      <input
-        type="file"
-        id="file"
-        accept="image/png, image/jpeg"
-        ref="fileInput"
-      />
-      <span class="text-red-500 text-sm" v-if="isFileSelected">
-        Image is required
-      </span>
+      <input type="file" id="file" accept="image/png, image/jpeg" ref="fileInput" />
     </div>
     <div class="flex justify-start items-centeri gap-2">
-      <basic-button
-        class-name="bg-brand-500 text-grey-200 disabled:cursor-not-allowed disabled:bg-brand-800"
-        @click="submit"
-        :disabled="isDisabled"
-      >
+      <basic-button class-name="bg-brand-500 text-grey-200 disabled:cursor-not-allowed disabled:bg-brand-800"
+        @click="submit" :disabled="isDisabled">
         Submit
       </basic-button>
-      <basic-button
-        class-name="bg-transparent border border-brand-500 text-brand-500"
-        @click="reset"
-      >
+      <basic-button class-name="bg-transparent border border-brand-500 text-brand-500" @click="reset">
         Reset
       </basic-button>
     </div>

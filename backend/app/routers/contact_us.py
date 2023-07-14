@@ -19,6 +19,11 @@ def create(
     return contact_us.create_contact_us(request, db)
 
 
+@router.get("/", status_code=status.HTTP_200_OK)
+def index(db: Session = Depends(get_db)):
+    return contact_us.show_contact_uses(db)
+
+
 @router.get("/{id}", status_code=status.HTTP_200_OK)
 def show(
     id: UUID4,

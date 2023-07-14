@@ -72,7 +72,7 @@ const deleteProduct = () => {
     <div class="basis-1/2 flex justify-center">
       <img
         v-if="product"
-        :src="`${baseUrl}/products/get-file/${
+        :src="`${baseUrl}/images/${
           product.filename ? product.filename : 'default.jpeg'
         }`"
         :alt="product.title"

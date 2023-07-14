@@ -164,7 +164,7 @@ const previous = () => {
           <td class="px-6 py-4">
             {{ truncate(product.video_link, 15) }}
           </td>
-          <td class="px-6 py-4">
+          <td class="px-6 py-4 w-24">
             <router-link
               :to="`/admin/products/${product.id}`"
               class="font-medium text-blue-600 hover:underline"

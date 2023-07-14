@@ -1,3 +1,4 @@
+import os
 from fastapi import HTTPException, status
 from pydantic import UUID4
 from sqlalchemy.orm import Session
@@ -5,9 +6,17 @@ from app import models, schemas
 
 contact_us_model = models.ContactUs
 
+IMAGEDIR = "./images"
+
+
+def check_file_exists(directory, filename):
+    file_path = os.path.join(directory, filename)
+    return os.path.isfile(file_path)
+
 
 def create_contact_us(request: schemas.ContactUsRequest, db: Session):
     new_contact_us = contact_us_model(
+        name=request.name,
         filename=request.filename,
         link=request.link,
     )
@@ -18,7 +27,11 @@ def create_contact_us(request: schemas.ContactUsRequest, db: Session):
     return new_contact_us
 
 
-def show_contact_us(id:UUID4, db: Session):
+def show_contact_uses(db: Session):
+    return db.query(contact_us_model).all()
+
+
+def show_contact_us(id: UUID4, db: Session):
     contact_us = db.query(contact_us_model).filter(contact_us_model.id == id).first()
 
     if not contact_us:
@@ -55,9 +68,9 @@ def delete_contact_us(id: UUID4, db: Session):
             detail=f"Contact Us with id {id} is not found",
         )
 
-    # filename = contact_us.first().filename
-    # if check_file_exists(IMAGEDIR, filename):
-    #     os.remove(f"{IMAGEDIR}/{filename}")
+    filename = contact_us.first().filename
+    if check_file_exists(IMAGEDIR, filename):
+        os.remove(f"{IMAGEDIR}/{filename}")
 
     contact_us.delete(synchronize_session=False)
     db.commit()

@@ -8,7 +8,6 @@ hero_model = models.Hero
 
 def create_hero(request: schemas.HeroRequest, db: Session):
     new_hero = hero_model(
-        filename=request.filename,
         main_text=request.main_text,
         alt_text=request.alt_text,
     )

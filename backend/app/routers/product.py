@@ -14,34 +14,6 @@ get_db = db.get_db
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
-IMAGEDIR = "./images"
-
-
-def check_file_exists(directory, filename):
-    file_path = os.path.join(directory, filename)
-    return os.path.isfile(file_path)
-
-
-@router.post("/upload-file", status_code=status.HTTP_201_CREATED)
-async def upload_file(
-    file: UploadFile = File(...),
-    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
-):
-    return await product.upload_product_image(file)
-
-@router.get("/get-file/{filename}")
-async def get_file(filename: str):
-    return product.product_get_image(filename)
-
-
-@router.delete("/delete-file/{filename}", status_code=status.HTTP_200_OK)
-async def remove_file(
-    filename: str,
-    current_user: schemas.UserRequest = Depends(oauth2.get_current_user),
-):
-    return product.product_delete_image(filename)
-
-
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create(
     request: schemas.ProductRequest,
