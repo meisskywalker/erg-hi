@@ -17,7 +17,7 @@ export const useAboutUsStore = defineStore('about-us', {
         console.error('[ERROR]: ' + err);
       }
     },
-    async uploadFileAndUpdate(id, payload, file) {
+    async uploadFileAndIn(id, payload, file) {
       try {
         const response = await axios.post(
           '/images',
@@ -32,10 +32,28 @@ export const useAboutUsStore = defineStore('about-us', {
         const data = await response.data;
         if (response.status === 201) {
           payload.filename = data.filename;
-          this.update(id, payload);
+          if (id) this.update(id, payload);
+          else this.create(payload);
           this.deleteFile(payload.oldFile);
         }
       } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
+    async create(payload) {
+      try {
+        const response = await axios.post(`/about-us`, payload, {
+          headers: {
+            Authorization: `Bearer ${$cookies.get('token')}`,
+          },
+        });
+        if (response.status === 201) {
+          window.location.reload();
+        }
+      } catch (err) {
+        if (payload.filename) {
+          this.deleteFile(payload.filename);
+        }
         console.error('[ERROR]: ' + err);
       }
     },

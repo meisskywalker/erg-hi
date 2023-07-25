@@ -17,26 +17,36 @@ export const useHeroStore = defineStore('hero', {
         console.error('[ERROR]: ' + err);
       }
     },
-    async uploadFileAndUpdate(id, payload, files) {
-      const formData = new FormData()
+    async uploadFileAndIn(id, payload, files) {
+      const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i])
+        formData.append('files', files[i]);
       }
 
       try {
-        const response = await axios.postForm(
-          '/images/slides',
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${$cookies.get('token')}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-        const data = await response.data;
+        const response = await axios.postForm('/images/slides', formData, {
+          headers: {
+            Authorization: `Bearer ${$cookies.get('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         if (response.status === 201) {
-          this.update(id, payload);
+          if (id) this.update(id, payload);
+          else this.create(payload);
+        }
+      } catch (err) {
+        console.error('[ERROR]: ' + err);
+      }
+    },
+    async create(payload) {
+      try {
+        const response = await axios.post(`/hero`, payload, {
+          headers: {
+            Authorization: `Bearer ${$cookies.get('token')}`,
+          },
+        });
+        if (response.status === 201) {
+          window.location.reload();
         }
       } catch (err) {
         console.error('[ERROR]: ' + err);

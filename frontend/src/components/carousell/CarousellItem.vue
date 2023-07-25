@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, toRefs } from 'vue';
+import { ref, toRefs } from 'vue';
 
 const props = defineProps({
   slide: String,
@@ -13,8 +13,8 @@ const baseUrl = ref(import.meta.env.VITE_API_URL);
 
 <template>
   <transition name="slide-in">
-    <div class="absolute inset w-full h-[35rem]" v-show="currentSlide === index">
-      <img :src="`${baseUrl}/images/slides/${slide}`" class="w-full h-full object-cover" />
+    <div class="absolute inset w-full h-[35rem] bg-gray-900" v-show="currentSlide === index">
+      <img :src="`${baseUrl}/images/slides/${slide}`" class="w-full h-full object-cover" style="opacity: 0.5;"/>
     </div>
   </transition>
 </template>

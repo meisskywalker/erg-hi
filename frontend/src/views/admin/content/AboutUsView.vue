@@ -47,22 +47,38 @@ const isCorrect = computed(() => {
 
 const submit = () => {
   if (isCorrect.value) {
-    if (!fileInput.value.files[0]) {
-      aboutUsStore.update(data.id.value, {
-        text: data.text.value,
-        description: data.description.value,
-        filename: data.oldFile.value,
-      });
-    } else {
-      aboutUsStore.uploadFileAndUpdate(
-        data.id.value,
-        {
+    if (data.id.value) {
+      if (!fileInput.value.files[0]) {
+        aboutUsStore.update(data.id.value, {
           text: data.text.value,
           description: data.description.value,
-          oldFile: data.oldFile.value,
-        },
-        fileInput.value.files[0]
-      );
+          filename: data.oldFile.value,
+        });
+      } else {
+        aboutUsStore.uploadFileAndIn(
+          data.id.value,
+          {
+            text: data.text.value,
+            description: data.description.value,
+            oldFile: data.oldFile.value,
+          },
+          fileInput.value.files[0]
+        );
+      }
+    } else {
+      if (!fileInput.value.files[0]) {
+        alert('Please add an image!');
+      } else {
+        aboutUsStore.uploadFileAndIn(
+          '',
+          {
+            text: data.text.value,
+            description: data.description.value,
+            oldFile: data.oldFile.value,
+          },
+          fileInput.value.files[0]
+        );
+      }
     }
   }
 };

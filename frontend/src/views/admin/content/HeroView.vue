@@ -44,20 +44,35 @@ const isCorrect = computed(() => {
 
 const submit = () => {
   if (isCorrect.value) {
-    if (!fileInput.value.files.length) {
-      heroStore.update(data.id.value, {
-        main_text: data['main text'].value,
-        alt_text: data['alternative text'].value,
-      });
-    } else {
-      heroStore.uploadFileAndUpdate(
-        data.id.value,
-        {
+    if (data.id.value) {
+      if (!fileInput.value.files.length) {
+        heroStore.update(data.id.value, {
           main_text: data['main text'].value,
           alt_text: data['alternative text'].value,
-        },
-        fileInput.value.files
-      );
+        });
+      } else {
+        heroStore.uploadFileAndIn(
+          data.id.value,
+          {
+            main_text: data['main text'].value,
+            alt_text: data['alternative text'].value,
+          },
+          fileInput.value.files
+        );
+      }
+    } else {
+      if (!fileInput.value.files.length) {
+        alert('Please add an image!');
+      } else {
+        heroStore.uploadFileAndIn(
+          '',
+          {
+            main_text: data['main text'].value,
+            alt_text: data['alternative text'].value,
+          },
+          fileInput.value.files
+        );
+      }
     }
   }
 };
@@ -105,7 +120,7 @@ const errorChecker = (payload) => {
       :value="data['alternative text'].value" />
     <div class="flex flex-col">
       <label for="file" class="font-medium text-base">Image</label>
-      <input type="file" id="file" name="files" accept="image/png, image/jpeg" ref="fileInput" multiple/>
+      <input type="file" id="file" name="files" accept="image/png, image/jpeg" ref="fileInput" multiple />
     </div>
     <div class="flex justify-start items-centeri gap-2">
       <basic-button class-name="bg-brand-500 text-grey-200 disabled:cursor-not-allowed disabled:bg-brand-800"
